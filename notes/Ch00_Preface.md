@@ -29,10 +29,14 @@
 
 ### 1.3 安装与设置
 
-- 安装 `Python 3.6`（实际 `3.10.0`）
+- 安装 `Python 3.6`（实际 `3.12.8`）
 - 安装 `pip`
 - 安装工具包：`python -m pip install --user numpy scipy matplotlib pandas scikit-learn nltk`
+  - 实测（Anaconda 环境下）：`conda activate myenv; conda install numpy scipy matplotlib pandas scikit-learn nltk`
+
 - 设置国内镜像：`pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple`
+  - 查看当前镜像地址：`pip config get global.index-url`（`https://mirrors.aliyun.com/pypi/simple/`）
+
 
 
 
@@ -58,7 +62,7 @@
 
 ### 1.6 安装代码库
 
-类的源代码统一放入本地路径 `C:/Code` 下。
+类的源代码统一放入本地路径 `C:/Code` 下。（暂不知具体作用）
 
 
 
@@ -71,6 +75,18 @@
 ## 2 调试备忘录
 
 ### 2.1 安装模块 `punkt` 报错
+
+> [!note]
+>
+> **重大更新**
+>
+> 切换到 Asus 笔记本后，发现 `JupyterLab` 默认的 `Python` 版本为 `3.9.x`，于是用 `Anaconda` 重新更新 `JupyterLab` 至最新版本（`v4.3.4`），并切换到新的虚拟环境 `myenv` 后，默认的 Python 版本变为 `3.12.8`（与当前版本一致）。再次运行 `ipynb` 单元格，冲突解决。
+>
+> —— 2025-1-13 22:53:29
+
+
+
+（以下内容为工作笔记本调试备忘，已失效）
 
 在 `VSCode` 下运行第一章练习 2 中的第三段代码报错：
 
