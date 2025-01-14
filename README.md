@@ -29,8 +29,8 @@ Status available：:heavy_check_mark: (Completed) | :hourglass_flowing_sand: (Wo
 | No.  |                      Chapter Title                       |          Status          |
 | :--: | :------------------------------------------------------: | :----------------------: |
 | Ch00 |                   [Preface](./Ch00.md)                   |    :heavy_check_mark:    |
-| Ch01 | [Introduction to Natural Language Processing](./Ch01.md) | :hourglass_flowing_sand: |
-| Ch02 |      [Basic Feature Extraction Methods](./Ch02.md)       |        :no_entry:        |
+| Ch01 | [Introduction to Natural Language Processing](./Ch01.md) |    :heavy_check_mark:    |
+| Ch02 |      [Basic Feature Extraction Methods](./Ch02.md)       | :hourglass_flowing_sand: |
 | Ch03 |        [Developing a Text classifier](./Ch03.md)         |        :no_entry:        |
 | Ch04 |      [Collecting Text Data from the Web](./Ch04.md)      |        :no_entry:        |
 | Ch05 |               [Topic Modeling](./Ch05.md)                |        :no_entry:        |
@@ -40,12 +40,12 @@ Status available：:heavy_check_mark: (Completed) | :hourglass_flowing_sand: (Wo
 
 
 
-Powershell script for generating markdown files in batch:
+Powershell script for generating markdown files in batch (deprecated):
 
 ```powershell
 # Create 8 empty markdown files named Ch##.md:
 for($i=1; $i -le 8; $i=$i+1){ New-Item -Name "Ch$('{0:d2}' -f $i).md"; }
 ```
 
- 
+For more entailed learning notes (grouping related section note files into different chapter folders) generation script was written in Python, see `notes/generate_files.py`.
 
