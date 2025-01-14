@@ -331,10 +331,67 @@ i = nltk.ne_chunk(nltk.pos_tag(word_tokenize(sentence)), binary=True)
 
 - `Tree('NE', ...)` 表示一个命名实体（`'NE'`）的树。
 - `('Packt', 'NNP')` 是这个命名实体的叶子节点，其中 `'Packt'` 是识别出的实体，`'NNP'` 是它的词性标签（专有名词）。
+- 代码中输出结果用到的筛选条件 `len(a) == 1`，主要目的在于只关注那些被识别为 **单个命名实体** 的元素。因为有些命名实体可能有多个单词构成（如 `New York`、`United States`），其长度大于 1。本例中不存在这种情况，因此直接用长度为 1 作为过滤条件以简化结果。
 
 
 
 ### 1.4.9 词义消歧 Word Sense Disambiguation
+
+词义消歧是将一个词映射到它所承载的正确意义的过程。人们需要根据单词所承载的意义来消除歧义，以便在分析时将其视为不同的实体。例如，以下语境对 `play` 的理解[^2]：
+
+![](../assets/1-2.png)
+
+##### 图 1.2 词义消歧示意图
+
+Harmonica：口琴 `[hɑːˈmɒnɪkə]`
+
+
+
+#### 练习 10：词义消歧
+
+详见随书源码 `{REPO_ROOT}/Lesson1/Exercise11.ipynb`。
+
+```python
+from nltk.wsd import lesk
+from nltk import word_tokenize
+
+sentence1 = "Keep your savings in the bank"
+sentence2 = "It's so risky to drive over the banks of the road"
+
+print(lesk(word_tokenize(sentence1), 'bank'))
+# Synset('savings_bank.n.02')
+print(lesk(word_tokenize(sentence2), 'bank'))
+# Synset('bank.v.07')
+```
+
+这里用到了 `nltk.wsd` 词义消歧库的 `lesk` 算法。其中 `savings_bank.n.02` 表示 **一个在家安全存放钱的容器**；而 `bank.v.07` 则表示 **道路转弯处的斜坡或坡道（a slope in the turn of a road）**
+
+
+
+### 1.4.10 句子边界检测 Sentence Boundary Detection
+
+句子边界检测是检测一个句子结束和另一个句子开始的方法。由于某些情况下缩写也是由句号分隔的，因此不能简单认为句号 `.` 就是任何句子的结束、和另一个句子的开始。还需要参考其他判定条件。
+
+#### 练习 11：句子边界检测
+
+详见随书源码 `{REPO_ROOT}/Lesson1/Exercise10.ipynb`。
+
+```python
+import nltk
+from nltk.tokenize import sent_tokenize
+sent_tokenize("We are reading a book. Do you know who is the publisher? It is Packt. Packt is based out of Birmingham.")
+```
+
+实测结果：
+
+```markdown
+['We are reading a book.',
+ 'Do you know who is the publisher?',
+ 'It is Packt.',
+ 'Packt is based out of Birmingham.']
+```
+
+可见，该方法可以从给定文本中分离出单个的句子。
 
 
 
@@ -343,3 +400,7 @@ i = nltk.ne_chunk(nltk.pos_tag(word_tokenize(sentence)), binary=True)
 ---
 
 [^1]: **决定词（determiner）** 是一种用来限定名词的词，通常出现在名词前，帮助提供名词的特定信息，如数量、所有权或确定性等。
+[^2]: Harmonica：口琴
+
+
+
