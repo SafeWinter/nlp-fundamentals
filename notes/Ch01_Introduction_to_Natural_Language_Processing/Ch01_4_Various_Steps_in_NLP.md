@@ -54,7 +54,7 @@ pos_tag('The sky is blue.'.split())
 
 
 
-#### 1.4.2.1. 练习3：词性标注练习
+#### 练习3：词性标注练习
 
 ```python
 from nltk import word_tokenize
@@ -73,7 +73,7 @@ pos_tag(words)
 
 
 
-#### 1.4.2.2. 常见的词性标记一览表
+#### 1.4.2.1. 常见的词性标记一览表
 
 根据 `ChatGPT` 提供的信息，`nltk` 模块常见的词性标记如下：
 
@@ -121,7 +121,7 @@ pos_tag(words)
 
 停用词是用于支持句子构建的常见词汇， 如 `a`、`am` 和 `the`，对句子的意义没有影响。由于经常高频出现，且对句子意义的影响不大，因此需要将其去除。
 
-#### 1.4.3.1 练习4：
+#### 练习4：停用词
 
 ```python
 from nltk import word_tokenize
@@ -228,11 +228,113 @@ sentence_corrected
 
 
 
+### 1.4.6 词干提取 Stemming
+
+在英语等语言中，单词在句子中会以各种形式出现，有必要将它们转换为基本形式，这个转换过程就叫词干提取。例如，将 `production` 和 `products` 统一处理成 `product`：
+
+![](../assets/1-1.png)
+
+##### 图 1.1 单词 product 的词干提取示意图
+
+
+
+#### 练习 7：词干提取
+
+详见随书源码 `{REPO_ROOT}/Lesson1/Exercise7.ipynb`。
+
+```python
+import nltk
+stemmer = nltk.stem.PorterStemmer()
+stemmer.stem("battling") # 'battl'
+```
+
+从上述实测结果可知，英语单词的词干也并非总是名词本身（`battl`）。
+
+
+
+### 1.4.7 词形还原 Lemmatization
+
+该过程就是为了解决 `battl` 这样的词干提取问题。
+
+该过程通常会进行额外的检查，并通过查阅字典正确提取出单词的基本形式（额外检查会放缓 NLP 任务的处理进度）。
+
+#### 练习 8：使用词形还原提取基本词汇
+
+```python
+from IPython.core.interactiveshell import InteractiveShell
+InteractiveShell.ast_node_interactivity = 'all'
+
+from nltk.stem.wordnet import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
+words = ['products', 'production', 'coming', 'battle']
+[lemmatizer.lemmatize(x) for x in words]
+# ['product', 'production', 'coming', 'battle']
+```
+
+书中未作解释，感觉词形还原这步意义不大。
+
+ChatGPT 给出的解释为：
+
+- `products` 被还原为 `product`，是正确的。
+- `production` 和 `battle` 没有变化，因为它们的基本形式就是它们本身。
+- `coming` 也没有变化，因为它的基本形式是 `come`，但默认情况下，`lemmatizer` 处理时将其视为名词。
+
+改进意见：
+
+```python
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.corpus import wordnet
+
+lemmatizer = WordNetLemmatizer()
+words = ['products', 'production', 'coming', 'battle']
+
+# 指定词性的词形还原
+lemmatized_words = [
+    # 这里假设所有单词都是动词
+    lemmatizer.lemmatize(x, pos=wordnet.VERB) for x in words
+]
+print(lemmatized_words)
+# ['products', 'production', 'come', 'battle']
+```
+
+其中， 参数 `pos` 支持下列合法值：
+
+- `wordnet.NOUN`：名词
+- `wordnet.VERB`：动词
+- `wordnet.ADJ`：形容词
+- `wordnet.ADV`：副词
+
+
+
+### 1.4.8 命名实体识别 NER
+
+**NER**，即 **named entity recognition**，命名实体识别。该过程的主要目标在于识别命名实体（如专有名词），并将其对应到定义好的类别中（如人名、地名等等）。
+
+#### 练习 9：处理命名实体
+
+```python
+import nltk
+from nltk import word_tokenize
+nltk.download('maxent_ne_chunker')
+nltk.download('maxent_ne_chunker_tab') # newly added
+nltk.download('words')
+
+sentence = "We are reading a book published by Packt which is based out of Birmingham."
+i = nltk.ne_chunk(nltk.pos_tag(word_tokenize(sentence)), binary=True)
+[a for a in i if len(a)==1]
+# [Tree('NE', [('Packt', 'NNP')]), Tree('NE', [('Birmingham', 'NNP')])]
+```
+
+可以看到，上述代码识别了命名实体 `Packt` 和 `Birmingham`，并将它们映射到一个已定义的类别：`NNP`（即 NNP  Proper noun, singular，表示单数的专有名词）。
+
+
+
+### 1.4.9 词义消歧 Word Sense Disambiguation
+
+
+
 
 
 ---
 
 [^1]: **决定词（determiner）** 是一种用来限定名词的词，通常出现在名词前，帮助提供名词的特定信息，如数量、所有权或确定性等。
-
-
-
