@@ -327,6 +327,11 @@ i = nltk.ne_chunk(nltk.pos_tag(word_tokenize(sentence)), binary=True)
 
 可以看到，上述代码识别了命名实体 `Packt` 和 `Birmingham`，并将它们映射到一个已定义的类别：`NNP`（即 NNP  Proper noun, singular，表示单数的专有名词）。
 
+此外，`Tree` 是 `NLTK` 库中的一个数据结构，用于表示树形结构。其中：
+
+- `Tree('NE', ...)` 表示一个命名实体（`'NE'`）的树。
+- `('Packt', 'NNP')` 是这个命名实体的叶子节点，其中 `'Packt'` 是识别出的实体，`'NNP'` 是它的词性标签（专有名词）。
+
 
 
 ### 1.4.9 词义消歧 Word Sense Disambiguation
