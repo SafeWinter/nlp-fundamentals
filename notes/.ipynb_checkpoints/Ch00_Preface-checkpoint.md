@@ -186,7 +186,7 @@ True
 
 到 `nltk` [官网](https://www.nltk.org/data.html) 手动下载所需依赖包。该问题所需 `punkt` 下载地址，需访问 https://www.nltk.org/nltk_data/ 后搜索 `punkt` 即可看到。再将下载好的 `zip` 压缩包手动复制到 `C:\Users\ad\AppData\Roaming\nltk_data` 文件夹下，解压到当前目录即可：
 
-![manual installation for punkt](../assets/0-1.png)
+![manual installation for punkt](assets/0-1.png)
 
 
 

@@ -8,7 +8,7 @@
 
 分词是将句子拆分为其组成单词的过程。
 
-按照提取标记（`token`）的数量进行分类：
+按照提取词元（`token`）的数量进行分类：
 
 - **unigram**：单元词、一元组，指文本中单个的词或词组。
 - **bigram**：双元词、二元组，指文本中相邻两个词组成的词组。
@@ -349,7 +349,7 @@ Harmonica：口琴 `[hɑːˈmɒnɪkə]`
 
 #### 练习 10：词义消歧
 
-详见随书源码 `{REPO_ROOT}/Lesson1/Exercise11.ipynb`。
+**词义消歧**（`word sense disambiguation`，简称 `wsd`）详见随书源码 `{REPO_ROOT}/Lesson1/Exercise11.ipynb`。
 
 ```python
 from nltk.wsd import lesk
