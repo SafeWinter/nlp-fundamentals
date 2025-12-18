@@ -253,19 +253,130 @@ review_data[['overall', 'predicted_score_from_linear_regression']].head(10)
 
 ![](../assets/3-5.png)
 
+本节用于演示的几种树方法：
+
+- 决策树：如上所述
+- 随机森林：从广义上讲，森林是由不同树种组成的集合体。在机器学习语境下，人们不再使用单一决策树进行预测，而是采用多个决策树协同工作。该算法的优势在于其采用了一种名为袋装法（bagging）的采样技术，该技术能有效防止过拟合；不足之处在于，构建随机森林模型通常需要消耗大量时间和内存资源。
+- 梯度提升法（GBM）：首先识别弱学习者（weak learners）。该算法包含损失函数和决策树等核心要素，其中损失函数需要优化，而决策树则充当弱学习者。
+- 极限梯度提升法（XGBoost）：GBM 的增强版，用于避免随着更多决策树（弱学习者）被添加到现有模型中后导致的过拟合问题。该算法通过多种正则化参数来规避过拟合现象。
 
 
 
+`XGBoost` 算法的主要优点：
+
+- 具备自动处理缺失值（missing values）的能力
+- 执行速度快
+- 若训练得当，精度会很高
+- 提供对 `Hadoop` 和 `Spark` 等分布式框架的支持
 
 
 
+`Exercise33.ipynb` 实战：决策树、随机森林、`GBM`、`XGBoost` 的用法演示。
+
+数据来源：亚马逊平台部分商品的网购评论 `JSON` 文件：
+
+```json
+{
+  "reviewerID": "A1JZFGZEZVWQPY", 
+  "asin": "B00002N674", 
+  "reviewerName": "Carter H \"1amazonreviewer@gmail . com\"", 
+  "helpful": [4, 4], 
+  "reviewText": "Good USA company that stands behind their products. \
+    I have had to warranty two hoses and they send replacements right out to you. \
+    I had one burst after awhile, you could see it buldge for weeks before it went \
+    so no suprises. The other one was winter related as I am bad and leave them out \
+    most of the time. Highly reccomend. Note the hundred footer is heavy and like \
+    wresting an anaconda when its time to put away, but it does have a far reach.", 
+  "overall": 4.0, 
+  "summary": "Great Hoses", 
+  "unixReviewTime": 1308614400, 
+  "reviewTime": 
+  "06 21, 2011"
+}
+```
+
+处理流程：
+
+先将原始数据作数据清洗，再按最大特征 500 建立 `TF-IDF` 词频矩阵，接着按自定义规则（4 分及以下为消极，以上为积极）贴标签，放入 `target` 字段列。
+
+然后分别用决策树、随机森林、`GBM`、`XGBoost` 训练数据并预测标签和用户评分。由于大致流程高度一致，作者又提取了公共函数来批量处理分类模型和回归模型，分别实现了后三种算法在定性和定量上的批量预测。
+
+核心代码（仅以决策树为例）：
+
+```python
+lemmatizer = WordNetLemmatizer()
+data_patio_lawn_garden['cleaned_review_text'] = data_patio_lawn_garden['reviewText'].apply(\
+lambda x : ' '.join([lemmatizer.lemmatize(word.lower()) \
+    for word in word_tokenize(re.sub(r'([^\s\w]|_)+', ' ', str(x)))]))
+
+tfidf_model = TfidfVectorizer(max_features=500)
+tfidf_df = pd.DataFrame(tfidf_model.fit_transform(data_patio_lawn_garden['cleaned_review_text']).todense())
+tfidf_df.columns = sorted(tfidf_model.vocabulary_)
+tfidf_df.head()
+
+data_patio_lawn_garden['target'] = data_patio_lawn_garden['overall'].apply(lambda x : 0 if x<=4 else 1)
+data_patio_lawn_garden['target'].value_counts()
+'''target
+1    7037
+0    6235
+Name: count, dtype: int64'''
+
+from sklearn import tree
+dtc = tree.DecisionTreeClassifier()
+dtc = dtc.fit(tfidf_df, data_patio_lawn_garden['target'])
+data_patio_lawn_garden['predicted_labels_dtc'] = dtc.predict(tfidf_df)
+pd.crosstab(data_patio_lawn_garden['target'], data_patio_lawn_garden['predicted_labels_dtc'])
+'''predicted_labels_dtc	0	1
+target		
+0	6227	8
+1	1	7036
+'''
+
+from sklearn import tree
+dtr = tree.DecisionTreeRegressor()
+dtr = dtr.fit(tfidf_df, data_patio_lawn_garden['overall'])
+data_patio_lawn_garden['predicted_values_dtr'] = dtr.predict(tfidf_df)
+data_patio_lawn_garden[['predicted_values_dtr', 'overall']].head(10)
+'''predicted_values_dtr	overall
+0	4.0	4
+1	5.0	5
+2	4.0	4
+3	5.0	5
+4	5.0	5
+5	5.0	5
+6	5.0	5
+7	5.0	5
+8	5.0	5
+9	4.0	4'''
+```
+
+通用函数：
+
+```python
+def clf_model(model_type, X_train, y):
+    model = model_type.fit(X_train,y)
+    predicted_labels = model.predict(tfidf_df)
+    return predicted_labels
+```
+
+注意：实测 `XG-Boost` 算法前需要先安装相关模块：
+
+```python
+# Jupyter Lab 环境下：
+!pip install xgboost
+# Anaconda 命令行环境下：
+conda install -c conda-forge xgboost
+```
 
 
 
+#### 4 采样方法
 
+主要介绍了三种：
 
-
-
+- 简单随机采样法（Simple random sampling）
+- 分层采样（Stratified sampling）
+- 多级采样（Multi-Stage Sampling）
 
 
 
@@ -273,9 +384,30 @@ review_data[['overall', 'predicted_score_from_linear_regression']].head(10)
 
 ![](../assets/3-1.png)
 
-解决办法：安装可选依赖 `openpyxl`
+解决办法：安装可选依赖 `openpyxl`，以顺利读取 `Excel` 文档：
 
 ```python
 conda install -c conda-forge openpyxl
+```
+
+核心脚本：
+
+```python
+#Remember we use random_state = a constant number
+#This to ensure that the samples obtained are the same
+# 简单随机采样
+data_sample_random = data.sample(frac=0.1,random_state=42) # selecting 10% of the data randomly
+data_sample_random.head()
+
+# 分级采样
+from sklearn.model_selection import train_test_split
+X_train, X_valid, y_train, y_valid = train_test_split(data, data['Country'], \
+                                                      test_size=0.2, random_state=42,stratify = data['Country'])
+
+# 多级采样
+data_ugf = data[data['Country'].isin(['United Kingdom', 'Germany', 'France'])]
+data_ugf_q2 = data_ugf[data_ugf['Quantity']>=2]
+data_ugf_q2_sample = data_ugf_q2.sample(frac = .02, random_state=42)
+data_ugf_q2_sample.head()
 ```
 
